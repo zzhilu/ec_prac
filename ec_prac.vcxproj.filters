@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Enunciat Nivell BÀSIC-20260925\main_NB.cpp">
+    <MASM Include="prac_NB - Alumne.asm">
+      <Filter>Archivos de recursos</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main_NB.cpp">
       <Filter>Archivos de recursos</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Enunciat Nivell BÀSIC-20260925\globals.h">
+    <ClInclude Include="globals.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\Enunciat Nivell BÀSIC-20260925\prac_NB - Alumne.asm">
-      <Filter>Archivos de recursos</Filter>
-    </MASM>
   </ItemGroup>
 </Project>

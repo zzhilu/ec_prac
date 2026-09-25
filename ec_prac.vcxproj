@@ -18,6 +18,15 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="prac_NB - Alumne.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main_NB.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="globals.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -123,17 +132,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Enunciat Nivell BÀSIC-20260925\globals.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Enunciat Nivell BÀSIC-20260925\main_NB.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\Enunciat Nivell BÀSIC-20260925\prac_NB - Alumne.asm">
-      <FileType>Document</FileType>
-    </MASM>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
