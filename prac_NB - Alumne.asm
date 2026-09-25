@@ -1,7 +1,7 @@
 .586
 .MODEL FLAT, C
 
-;************************************ SOLUCIÓ BASE *****s************************************************
+;************************************ SOLUCIÓ BASE *****************************************************
 
 ; Funcions definides en C
 printChar_C PROTO C, value:SDWORD
@@ -196,7 +196,7 @@ getch endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Rutina: showCursor
+; Rutina:	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; A partir de la posició de la matriu row i col calcular la posició que ha d'ocupar aquesta 
 ; component a la pantalla i posicionar el cursor a la posició corresponent posant els valors
@@ -221,8 +221,24 @@ showCursor proc
     push ebp
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
+	Push_all            ; Guardem registres generals (eax, ebx, ecx, edx, esi, edi)
 
+    ; 1. rowScreen = row * 2 + 10
+    mov eax, [row]      ; Carreguem la variable global 'row' (DWORD) en eax
+    shl eax, 1          ; desplaçament a l'esquerra per 1 (en binari, equival a multiplicar per 2)
+    add eax, 10         ; sumem 10 a eax
+    mov [rowScreen], eax; Guardem el resultat en 'rowScreen'
 
+    ; 2. colScreen = col * 9 + 13
+    mov eax, [col]      ; Carreguem la variable global 'col' (DWORD) en eax
+    imul eax, 9         ; Multipliquem eax per 9
+    add eax, 13         ; sumem 13
+    mov [colScreen], eax; Guardem a 'colScreen'
+
+    ; 3. Posicionar el cursor en pantalla
+    call gotoxy         ; Crida a gotoxy (que llegeix rowScreen y colScreen)
+
+    Pop_all             ; Restaurem els registres inicialment guardats
 
 
 	;Fi codi d'alumne de la rutina
