@@ -420,10 +420,60 @@ shiftNumbers proc
    push ebp
    mov  ebp, esp 
 	;Inici codi d'alumne de la rutina
+	
+	Push_all
+	;empezar por el ultimo elemento de la matriz, abajo a la derecha
+	mov ecx, 30
 
+	filaShift:
+	;;esi guarda la posicion actual que estamos revisando
+	mov esi, ecx
+	;edi guarda el pos para siguiente valor!=0
+	mov edi,ecx
+	;guardar el ebx (vector del ultimo elemento de la fila) valor del ecx
+	mov ebx, ecx
+	;restar ebx, que es el numero del ultimo elemento de la fila
+	sub ebx, 6
 
+	colShift:
+	;leer numero actual
+	mov ax, WORD PTR [m+esi]
+	;comparar ax es 0?
+	cmp ax,0
+	;si es 0, salta
+	je esZero
+	;comparar si edi==esi, si el numero esta en la pos correcta
+	cmp edi,esi
+	je noMoure
 
+	;si no es 0， mover el valor actual a pos guardaro
+	mov WORD PTR [m+edi], ax
+	;en el pos actual guardar un 0
+	mov WORD PTR [m+esi], 0
+	;como que sigue el juego y hay cambio, state='2'=char 2
+	mov BYTE PTR[state],'2'
 
+	noMoure:
+	;la posicion edi ya esta ocupada, mover edi hacia la izquierda
+	sub edi,2
+
+	esZero:
+	;si es 0, esi -2 (mover hacía izquierda)
+	sub esi,2
+
+	;esi>=ebx porque tiene que revisar el vector actual, entonces tiene que ser estrictamente peque que ebx
+	;si aun esta en la misma col, sigue el proceso de revisar
+	cmp esi,ebx
+	jge colShift
+
+	;pasar a la fila anterior
+	sub ecx,8
+
+	;si aun quedan filas, seguir con la fila anterior
+	cmp ecx,6
+	jge filaShift
+
+	Pop_all
 
 	;Fi codi d'alumne de la rutina
    mov esp, ebp
@@ -458,10 +508,51 @@ addPairs proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
+	;ecx guarda la posicion del elemento mas a la derecha de la fila
+	mov ecx,30
 
+	filaPair:
+	;reg del elemento derecha de comparacion
+	mov esi,ecx
+	;ebx guarda la posicion del primer elemento de la fila
+	mov ebx, ecx
+	sub ebx, 6
 
+	colPair:
+	;si llegamos al primer elemento, ya no hay otro a la izquierda para comparar
+	cmp esi, ebx
+	je filaFin
+	;guardar el elemento de la derecha
+	mov ax, WORD PTR [m+esi]
+	;guardar el elemento de la izquierda
+	mov dx, WORD PTR [m+esi-2]
+	cmp ax,dx
+	jne nextPair
 
+	cmp ax,0
+	je nextPair
+	add ax,dx
+	;guardar la suma en la posicion de la derecha
+	mov WORD PTR [m+esi], ax
+	mov WORD PTR [m+esi-2], 0
+	sub esi, 2
+	;se ha producido un cambio en la matriz
+	mov BYTE PTR[state],'2'
+	jmp colPair
 
+	nextPair:
+	sub esi, 2
+	jmp colPair
+
+	filaFin:
+	;pasar a la fila anterior
+	sub ecx, 8
+	;si aun quedan filas, seguir
+	cmp ecx, 6
+	jge filaPair
+
+	Pop_all
 
  	;Fi codi d'alumne de la rutina
 	mov esp, ebp
