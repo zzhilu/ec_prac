@@ -269,8 +269,7 @@ calcIndex proc
 	push ebp
 	mov  ebp, esp
 	;Inici 
-	push ebp
-	mov  ebp, esp
+	
 	Push_all
 
 	; eax = row
@@ -418,7 +417,7 @@ sn_print_d:
     call printch
 
 sn_end:
-
+	Pop_all
 	;Fi codi d'alumne de la rutina
 	mov esp, ebp
 	pop ebp
@@ -451,7 +450,6 @@ showNumber endp
 showMatrix proc
     push ebp
 	mov  ebp, esp
-	;Inici codi d'alumne de la rutina
 
 	Push_all
 
@@ -479,7 +477,6 @@ colMatrix:
     jne filaMatrix
 
     Pop_all
-	;Fi codi d'alumne de la rutina
 	mov esp, ebp
 	pop ebp
 	ret
