@@ -554,7 +554,7 @@ shiftNumbers proc
 	;empezar por el ultimo elemento de la matriz, abajo a la derecha
 	mov ecx, 30
 
-	filaShift:
+filaShift:
 	;;esi guarda la posicion actual que estamos revisando
 	mov esi, ecx
 	;edi guarda el pos para siguiente valor!=0
@@ -564,7 +564,7 @@ shiftNumbers proc
 	;restar ebx, que es el numero del ultimo elemento de la fila
 	sub ebx, 6
 
-	colShift:
+colShift:
 	;leer numero actual
 	mov ax, WORD PTR [m+esi]
 	;comparar ax es 0?
@@ -582,11 +582,11 @@ shiftNumbers proc
 	;como que sigue el juego y hay cambio, state='2'=char 2
 	mov BYTE PTR[state],'2'
 
-	noMoure:
+noMoure:
 	;la posicion edi ya esta ocupada, mover edi hacia la izquierda
 	sub edi,2
 
-	esZero:
+esZero:
 	;si es 0, esi -2 (mover hacía izquierda)
 	sub esi,2
 
