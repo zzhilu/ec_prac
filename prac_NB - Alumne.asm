@@ -268,19 +268,25 @@ showCursor endp
 calcIndex proc
 	push ebp
 	mov  ebp, esp
-	;Inici Codi de la pràctica
+	;Inici 
+	push ebp
+	mov  ebp, esp
+	Push_all
 
+	; eax = row
+	mov eax, [row]
+	shl eax, 2          ; eax = row * 4
+	add eax, [col]      ; eax = (row * 4) + col
+	shl eax, 1          ; eax = ((row * 4) + col) * 2
+	
+	mov [pos], eax      ; guardem index resultant a la variable global pos
 
-
-
-
- 	;Fi Codi de la pràctica
+ 	;Fi
 	mov esp, ebp
 	pop ebp
 	ret
 
 calcIndex endp
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Rutina: showNumber
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -314,10 +320,104 @@ showNumber proc
     push ebp
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
-	
-	
-	
-	
+	Push_all            ; guardem l'estat dels registres
+
+    ;  Posicionar el cursor a la cel·la (row, col)
+    call showCursor
+
+    ;  Comprovar si number > 9999
+    mov eax, [number]
+    cmp eax, 9999
+    jle sn_check_zero
+    mov eax, 9999       ; Ajustar a 9999 si supera el limit
+    mov [number], eax
+
+sn_check_zero:
+    ; Cas especial: si number == 0, imprimim 4 espais ' '
+    cmp eax, 0
+    jne sn_convert_digits
+    
+    mov byte ptr [carac], ' '
+    call printch
+    call printch
+    call printch
+    call printch
+    jmp sn_end
+
+sn_convert_digits:
+    ; descomposem
+    mov ebx, 10
+
+    ; --- Unidades (Dígito 4) ---
+    xor edx, edx    
+    div ebx          
+    add dl, '0'       
+    push edx           
+
+    ; desenes
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; centenes
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; millars
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; extraiem de la pila i convertim en ' '
+    
+    ; millars
+    pop eax
+    cmp al, '0'
+    jne sn_print_m
+    mov al, ' '         ; Si el millar es '0', convertir a espai ' '
+
+sn_print_m:
+    mov [carac], al
+    call printch
+
+    ;
+    pop eax
+    cmp al, '0'
+    jne sn_print_c
+    ; espai si el millar anterior és espai
+    mov cl, [carac]
+    cmp cl, ' '
+    jne sn_print_c
+    mov al, ' '
+
+sn_print_c:
+    mov [carac], al
+    call printch
+
+    ; desenes
+    pop eax
+    cmp al, '0'
+    jne sn_print_d
+    ; convertim a espai si la centena previa es espai
+    mov cl, [carac]
+    cmp cl, ' '
+    jne sn_print_d
+    mov al, ' '
+
+sn_print_d:
+    mov [carac], al
+    call printch
+
+    ; unitats
+    pop eax             ; si el num no és zero la unitat es converteix en un espai
+    mov [carac], al
+    call printch
+
+sn_end:
 
 	;Fi codi d'alumne de la rutina
 	mov esp, ebp
