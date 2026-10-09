@@ -353,7 +353,39 @@ showMatrix proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
 
+    ;Empezar por la primera fila
+    mov DWORD PTR [row], 0
+
+filaMatrix:
+    ;Empezar por la primera columna
+    mov DWORD PTR [col], 0
+
+colMatrix:
+    ;Calcular la posicion de la matriz
+    call calcIndex
+    mov esi, [pos]
+
+    ;Leer el numero actual de la matriz
+    mov eax, 0
+    mov ax, [m + esi]
+    mov [number], eax
+
+    ;Mostrar el numero en pantalla
+    call showNumber
+
+    ;Pasar a la siguiente columna
+    inc DWORD PTR [col]
+    cmp DWORD PTR [col], 4
+    jl colMatrix
+
+    ;Pasar a la siguiente fila
+    inc DWORD PTR [row]
+    cmp DWORD PTR [row], 4
+    jl filaMatrix
+
+    Pop_all
 
 
 
@@ -385,10 +417,27 @@ copyMatrix proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
 
+    ;Empezar por el primer elemento
+    mov esi, 0
 
+bucleCopy:
+    ;Leer el elemento de mAux
+    mov ax, [mAux + esi]
 
-   
+    ;Copiar el elemento a m
+    mov [m + esi], ax
+
+    ;Pasar al siguiente elemento
+    add esi, 2
+
+    ;Comprobar si quedan elementos
+    cmp esi, 32
+    jl bucleCopy
+
+    Pop_all
+
 	;Fi codi d'alumne de la rutina
 	mov esp, ebp
 	pop ebp
