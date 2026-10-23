@@ -756,8 +756,13 @@ insertTile proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	;EAX=actual rowInsert, ESI=actual offset que cal revisar, ECX=num column revisat
+	mov eax, [rowInsert]
+	imul eax, 8
+	mov esi, eax
 
-
+	mov ax, [m+esi]
+	mov ax, 0
 
 
 
