@@ -11,7 +11,7 @@ printMessage_C PROTO C
 
 
 ;Subrutines cridades des de C
-public C showCursor, showNumber, showMatrix, copyMatrix, shiftNumbers, addPairs, rotateMatrix, onePlay, playGame, insertTile
+public C showCursor, showNumber, showMatrix, copyMatrix, shiftNumbers, addPairs
 
                          
 ;Variables utilitzades - declarades en C
@@ -19,7 +19,6 @@ extern C m:WORD, mAux:WORD
 extern C carac: BYTE, tecla: BYTE
 extern C row: DWORD, col: DWORD,rowCursor: DWORD, colCursor: DWORD, rowScreen: DWORD, colScreen: DWORD, rowInsert: DWORD
 extern C number: DWORD, score:DWORD, state:DWORD, pos:DWORD
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 ; Descripció de les variables
@@ -41,19 +40,14 @@ extern C number: DWORD, score:DWORD, state:DWORD, pos:DWORD
 ; pos:			Índex per a accedir a la matriu mBoard (resultat de calcIndex)
 ; 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Les subrutines que heu de modificar per la pràctica nivell avançat son:
+; Les subrutines que heu de modificar per la pràctica nivell básic son:
 ; showCursor
 ; showNumber
 ; showMatrix
 ; copyMatrix
 ; shiftNumbers
 ; addPairs
-; rotateMatrix
-; onePlay
-; playGame
-; insertTile
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 .code   
@@ -202,7 +196,7 @@ getch endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Rutina: showCursor
+; Rutina:	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; A partir de la posició de la matriu row i col calcular la posició que ha d'ocupar aquesta 
 ; component a la pantalla i posicionar el cursor a la posició corresponent posant els valors
@@ -227,9 +221,24 @@ showCursor proc
     push ebp
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
+	Push_all            ; Guardem registres generals (eax, ebx, ecx, edx, esi, edi)
 
+    ; 1. rowScreen = row * 2 + 10
+    mov eax, [row]      ; Carreguem la variable global 'row' (DWORD) en eax
+    shl eax, 1          ; desplaçament a l'esquerra per 1 (en binari, equival a multiplicar per 2)
+    add eax, 10         ; sumem 10 a eax
+    mov [rowScreen], eax; Guardem el resultat en 'rowScreen'
 
+    ; 2. colScreen = col * 9 + 13
+    mov eax, [col]      ; Carreguem la variable global 'col' (DWORD) en eax
+    imul eax, 9         ; Multipliquem eax per 9
+    add eax, 13         ; sumem 13
+    mov [colScreen], eax; Guardem a 'colScreen'
 
+    ; 3. Posicionar el cursor en pantalla
+    call gotoxy         ; Crida a gotoxy (que llegeix rowScreen y colScreen)
+
+    Pop_all             ; Restaurem els registres inicialment guardats
 
 
 	;Fi codi d'alumne de la rutina
@@ -254,23 +263,29 @@ showCursor endp
 ; Variables utilitzades:
 ; row:			Valor numèric de a fila on estem realitzant la jugada (0-3)
 ; col:			Valor numèric de a columna on estem realitzant la jugada (0-3)
-; pos:			Índex per a accedir a la matriu mBoard (resultat de calcIndex)
+; pos:			Índex per a accedir a la matriu m (resultat de calcIndex)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 calcIndex proc
 	push ebp
 	mov  ebp, esp
-	;Inici Codi de la pràctica
+	;Inici 
+	
+	Push_all
 
+	; eax = row
+	mov eax, [row]
+	shl eax, 2          ; eax = row * 4
+	add eax, [col]      ; eax = (row * 4) + col
+	shl eax, 1          ; eax = ((row * 4) + col) * 2
+	
+	mov [pos], eax      ; guardem index resultant a la variable global pos
 
-
-
- 	;Fi Codi de la pràctica
+ 	;Fi
 	mov esp, ebp
 	pop ebp
 	ret
 
 calcIndex endp
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Rutina: showNumber
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -304,11 +319,105 @@ showNumber proc
     push ebp
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
+	Push_all            ; guardem l'estat dels registres
 
+    ;  Posicionar el cursor a la cel·la (row, col)
+    call showCursor
 
+    ;  Comprovar si number > 9999
+    mov eax, [number]
+    cmp eax, 9999
+    jle sn_check_zero
+    mov eax, 9999       ; Ajustar a 9999 si supera el limit
+    mov [number], eax
 
+sn_check_zero:
+    ; Cas especial: si number == 0, imprimim 4 espais ' '
+    cmp eax, 0
+    jne sn_convert_digits
+    
+    mov byte ptr [carac], ' '
+    call printch
+    call printch
+    call printch
+    call printch
+    jmp sn_end
 
+sn_convert_digits:
+    ; descomposem
+    mov ebx, 10
 
+    ; --- Unidades (Dígito 4) ---
+    xor edx, edx    
+    div ebx          
+    add dl, '0'       
+    push edx           
+
+    ; desenes
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; centenes
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; millars
+    xor edx, edx
+    div ebx
+    add dl, '0'
+    push edx
+
+    ; extraiem de la pila i convertim en ' '
+    
+    ; millars
+    pop eax
+    cmp al, '0'
+    jne sn_print_m
+    mov al, ' '         ; Si el millar es '0', convertir a espai ' '
+
+sn_print_m:
+    mov [carac], al
+    call printch
+
+    ;
+    pop eax
+    cmp al, '0'
+    jne sn_print_c
+    ; espai si el millar anterior és espai
+    mov cl, [carac]
+    cmp cl, ' '
+    jne sn_print_c
+    mov al, ' '
+
+sn_print_c:
+    mov [carac], al
+    call printch
+
+    ; desenes
+    pop eax
+    cmp al, '0'
+    jne sn_print_d
+    ; convertim a espai si la centena previa es espai
+    mov cl, [carac]
+    cmp cl, ' '
+    jne sn_print_d
+    mov al, ' '
+
+sn_print_d:
+    mov [carac], al
+    call printch
+
+    ; unitats
+    pop eax             ; si el num no és zero la unitat es converteix en un espai
+    mov [carac], al
+    call printch
+
+sn_end:
+	Pop_all
 	;Fi codi d'alumne de la rutina
 	mov esp, ebp
 	pop ebp
@@ -341,13 +450,33 @@ showNumber endp
 showMatrix proc
     push ebp
 	mov  ebp, esp
-	;Inici codi d'alumne de la rutina
 
+	Push_all
 
+    mov DWORD PTR [row], 0
 
+filaMatrix:
+    mov DWORD PTR [col], 0
 
+colMatrix:
+    call calcIndex
+    mov esi, [pos]
 
-	;Fi codi d'alumne de la rutina
+    mov eax, 0
+    mov ax, [m + esi]
+    mov [number], eax
+
+    call showNumber
+
+    inc DWORD PTR [col]
+    cmp DWORD PTR [col], 4
+    jne colMatrix
+
+    inc DWORD PTR [row]
+    cmp DWORD PTR [row], 4
+    jne filaMatrix
+
+    Pop_all
 	mov esp, ebp
 	pop ebp
 	ret
@@ -366,19 +495,29 @@ showMatrix endp
 ; tipus short(WORD) 2 bytes.
 ; No cal mostrar la matriu.
 ;
-; Variables globals utilitzades:   
-; (m)       : Matriu on guardem els nombres del joc.
-; (mAux): Matriu amb els nombres rotats a la dreta.
+; Variables utilitzades:   
+; m:		Matriu de 4x4 shorts que conté l'estat del tauler de joc
+; mAux: 	Matriu amb els nombres rotats a la dreta.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 copyMatrix proc
     push ebp
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
 
+    mov esi, 0
 
+bucleCopy:
+    mov ax, [mAux + esi]
 
-   
+    mov [m + esi], ax
+    add esi, 2
+    cmp esi, 32
+    jne bucleCopy
+
+    Pop_all
+
 	;Fi codi d'alumne de la rutina
 	mov esp, ebp
 	pop ebp
@@ -404,15 +543,66 @@ copyMatrix endp
 ; Variables globals utilitzades:   
 ; m:			Matriu de 4x4 shorts que conté l'estat del tauler de joc
 ; state:		Indica l'estat del joc (1-5) ('2': S'han fet moviments).
+; mAux:         Matriu de suport on posar els nombres rotats a la dreta.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 shiftNumbers proc
    push ebp
    mov  ebp, esp 
 	;Inici codi d'alumne de la rutina
+	
+	Push_all
+	;empezar por el ultimo elemento de la matriz, abajo a la derecha
+	mov ecx, 30
 
+filaShift:
+	;;esi guarda la posicion actual que estamos revisando
+	mov esi, ecx
+	;edi guarda el pos para siguiente valor!=0
+	mov edi,ecx
+	;guardar el ebx (vector del ultimo elemento de la fila) valor del ecx
+	mov ebx, ecx
+	;restar ebx, que es el numero del ultimo elemento de la fila
+	sub ebx, 6
 
+colShift:
+	;leer numero actual
+	mov ax, WORD PTR [m+esi]
+	;comparar ax es 0?
+	cmp ax,0
+	;si es 0, salta
+	je esZero
+	;comparar si edi==esi, si el numero esta en la pos correcta
+	cmp edi,esi
+	je noMoure
 
+	;si no es 0， mover el valor actual a pos guardaro
+	mov WORD PTR [m+edi], ax
+	;en el pos actual guardar un 0
+	mov WORD PTR [m+esi], 0
+	;como que sigue el juego y hay cambio, state='2'=char 2
+	mov BYTE PTR[state],'2'
 
+noMoure:
+	;la posicion edi ya esta ocupada, mover edi hacia la izquierda
+	sub edi,2
+
+esZero:
+	;si es 0, esi -2 (mover hacía izquierda)
+	sub esi,2
+
+	;esi>=ebx porque tiene que revisar el vector actual, entonces tiene que ser estrictamente peque que ebx
+	;si aun esta en la misma col, sigue el proceso de revisar
+	cmp esi,ebx
+	jge colShift
+
+	;pasar a la fila anterior
+	sub ecx,8
+
+	;si aun quedan filas, seguir con la fila anterior
+	cmp ecx,6
+	jge filaShift
+
+	Pop_all
 
 	;Fi codi d'alumne de la rutina
    mov esp, ebp
@@ -447,9 +637,51 @@ addPairs proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
+	;ecx guarda la posicion del elemento mas a la derecha de la fila
+	mov ecx,30
 
+	filaPair:
+	;reg del elemento derecha de comparacion
+	mov esi,ecx
+	;ebx guarda la posicion del primer elemento de la fila
+	mov ebx, ecx
+	sub ebx, 6
 
+	colPair:
+	;si llegamos al primer elemento, ya no hay otro a la izquierda para comparar
+	cmp esi, ebx
+	je filaFin
+	;guardar el elemento de la derecha
+	mov ax, WORD PTR [m+esi]
+	;guardar el elemento de la izquierda
+	mov dx, WORD PTR [m+esi-2]
+	cmp ax,dx
+	jne nextPair
 
+	cmp ax,0
+	je nextPair
+	add ax,dx
+	;guardar la suma en la posicion de la derecha
+	mov WORD PTR [m+esi], ax
+	mov WORD PTR [m+esi-2], 0
+	sub esi, 2
+	;se ha producido un cambio en la matriz
+	mov BYTE PTR[state],'2'
+	jmp colPair
+
+	nextPair:
+	sub esi, 2
+	jmp colPair
+
+	filaFin:
+	;pasar a la fila anterior
+	sub ecx, 8
+	;si aun quedan filas, seguir
+	cmp ecx, 6
+	jge filaPair
+
+	Pop_all
 
  	;Fi codi d'alumne de la rutina
 	mov esp, ebp

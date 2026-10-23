@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="prac_NB - Alumne.asm" />
+    <MASM Include="prac_NM- Alumne.asm" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main_NB.cpp" />
+    <ClCompile Include="main_NM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.h" />
