@@ -897,11 +897,23 @@ playGame proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
+	Push_all
 
+	mov al, '1'
+	mov [state], al
 
+    bucle:
+	 mov al, [state]
+	 cmp al, '0' 
+	 je fi
+	 call OnePlay
+	 call printMessage_C
+	 jmp bucle
 
+	fi:
+	 call printMessage_C
 
-
+	Pop_all
 
  	;Fi codi d'alumne de la rutina
 	mov esp, ebp
