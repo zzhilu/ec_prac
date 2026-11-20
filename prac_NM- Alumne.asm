@@ -802,7 +802,7 @@ insertTile proc
 
     fi_sense_insertar:
 	 mov al, '4'
-	 mov [state], al
+	 mov BYTE PTR [state], al
 
 	fi_insertat:
 	 Pop_all
@@ -900,10 +900,10 @@ playGame proc
 	Push_all
 
 	mov al, '1'
-	mov [state], al
+	mov BYTE PTR [state], al
 
     bucle:
-	 mov al, [state]
+	 mov al, BYTE PTR [state]
 	 cmp al, '0' 
 	 je fi
 	 call OnePlay
