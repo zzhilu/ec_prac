@@ -756,17 +756,56 @@ insertTile proc
 	mov  ebp, esp
 	;Inici codi d'alumne de la rutina
 
-	;EAX=actual rowInsert, ESI=actual offset que cal revisar, ECX=num column revisat
-	mov eax, [rowInsert]
-	imul eax, 8
-	mov esi, eax
+	Push_all
 
-	mov ax, [m+esi]
-	mov ax, 0
+    mov ecx, 0
 
+	canvi_fila:
+	 ;EAX=actual rowInsert, ESI=actual offset que cal revisar, ECX=num column revisat
+	 cmp ecx, 4
+	 jge fi_sense_insertar
 
+	 ;calcular offset
+	 mov eax, [rowInsert]
+	 imul eax, 8
+	 mov esi, eax
 
+	 mov ax, [m+esi]
+	 cmp ax, 0
+	 je inserir_valor
 
+	 mov eax, [rowInsert]
+	 inc eax
+	 cmp eax, 4
+	 jl guardar_fila
+	 mov eax, 0
+
+	guardar_fila:
+	 mov [rowInsert],eax
+	 inc ecx
+	 jmp canvi_fila
+
+	inserir_valor:
+	 mov ax, 2
+	 mov [m+esi], ax
+
+	 ;actualitzar posicio per la proxima inserttile
+	 mov eax, [rowInsert]
+	 inc eax
+	 cmp eax, 4
+	 jl guardar_seguent
+	 mov eax, 0
+
+	guardar_seguent:
+	 mov [rowInsert], eax
+	 jmp fi_insertat
+
+    fi_sense_insertar:
+	 mov al, '4'
+	 mov [state], al
+
+	fi_insertat:
+	 Pop_all
 
  	;Fi codi d'alumne de la rutina
 	mov esp, ebp
